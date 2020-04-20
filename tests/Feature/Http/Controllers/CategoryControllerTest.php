@@ -8,15 +8,33 @@ use Tests\TestCase;
 
 class CategoryControllerTest extends TestCase
 {
+    use RefreshDatabase;
     /**
      * A basic feature test example.
      *
      * @return void
      */
-    public function testExample()
+    public function test_store()
     {
-        $response = $this->get('/');
+        $this->withoutExceptionHandling();
+        $response = $this->json('POST', 'api/categories', [
+            'name' => 'nombre de la categoria',
+            'photo' => 'ruta de la foto',
+            'subcategory' => 1
+        ]);
 
-        $response->assertStatus(200);
+        $response->assertJsonStructure(['id','name','photo','subcategory','created_at','updated_at'])
+        ->assertJson([
+            'name' => 'nombre de la categoria',
+            'photo' => 'ruta de la foto',
+            'subcategory' => 1
+            ])
+        ->assertStatus(201);
+
+        $this->assertDatabaseHas('categories',[
+            'name' => 'nombre de la categoria',
+            'photo' => 'ruta de la foto',
+            'subcategory' => 1
+            ]);
     }
 }
